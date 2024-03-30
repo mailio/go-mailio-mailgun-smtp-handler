@@ -51,12 +51,9 @@ Follow best practices for commit messages:
 - Link to any relevant issues or discussions in the pull request description.
 - Ensure your changes are well-tested and do not break existing functionality.
 
-## Conduct
-
-We have adopted a Code of Conduct that we expect project participants to adhere to. Please read [the full text](LINK_TO_CODE_OF_CONDUCT) so that you can understand what actions will and will not be tolerated.
 
 ## Getting Help
 
-If you have any questions or need help with setting up, please post a question in [the project's discussions](LINK_TO_PROJECT_DISCUSSIONS) or reach out to the maintainers directly.
+If you have any questions or need help with setting up, please post a question in [the project's discussions](https://discord.gg/hXjFS2zWra) or reach out to the maintainers directly.
 
 Thank you for contributing to [Project Name]! We look forward to your contributions.
