@@ -1,0 +1,111 @@
+Delivered-To: igor.amplio@gmail.com
+Received: by 2002:a17:906:2f02:b0:a44:2635:2d92 with SMTP id v2csp2550270eji;
+        Fri, 8 Mar 2024 16:11:58 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEHnmex0U3/TsXoCjFRzjsK3EqKtmuQNv/AOQfYw1pvd+/HLmgS2N1P23i2zRnWvRmdyet9
+X-Received: by 2002:a25:c104:0:b0:dcc:8c5e:7c9b with SMTP id r4-20020a25c104000000b00dcc8c5e7c9bmr552570ybf.57.1709943117139;
+        Fri, 08 Mar 2024 16:11:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1709943117; cv=none;
+        d=google.com; s=arc-20160816;
+        b=tUgkWmuq9LQum9aVwTmAP95RAjoTy83q4VcW9cn5xJiqiH6aITjbhKjQas6qvhesXh
+         s7+Q7SnICJIZrjtbme64m4DOm2QzHLaXcDoECHXK7iaB5e1T+qhk9SpFievZXBQKPeht
+         DVqgkYpfiXgBvZcvSFfp/JGrlWfZfcGy7FOSQ69cavW6gwkE/7mwHMhepRCHZh0xO9fh
+         uq+/2WP8XkWfTnqj9sk3ZaT2i5XG1QsXw4HiNxRgIjwGgW+MN+ZVdiXya5SYQoPNnZJ9
+         Y42GZDBVvXsqX+ukk3O24y3SK/t9Wl62ukSW5DVBe35aGoGXGeC7LpBsrLZ6XWgjaMt3
+         Q2bg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=to:reply-to:message-id:subject:date:from:mime-version
+         :dkim-signature;
+        bh=J84tE4qgMo5zmaiCEzXga04hqgbqaBFyJMvZu1OrQpA=;
+        fh=9kDxYwZwzvGhnahYv9oNRSZUwk1pw221BaHNpp3nSY4=;
+        b=YjyTPyMHMxC5PZ8oeFipsVWZn1gxFpLH0VIfFdflx5yi1Y2maVyDwt9EZdd+Dos1dt
+         hU6UjAtqzgIre3TAPDPlePyNOjucyfFBPPyZ1l+Eb8sGh8IenVnCdNRDjOsyn3qmgVG1
+         sOvshoZ0bc9RsVViJ8T3+v9/bln3j9V/iPUzw01CmyszBvi+odyDM6qRHq/Wl7zWGgM8
+         L2FlZSsYFAClTdSPSZRzAgAVMMYMuzFVDa+HnOzpyeWmFOVijgKhi374eAKuvOzsr9lU
+         kFdux1jzY7FRiRGTIXYO6ru8FKusOJaSgyikyNMLGoRdgkOuUQsohG1ozDhZIUctgy57
+         /TmA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@sendgrid.net header.s=smtpapi header.b=ssCqcdrV;
+       spf=pass (google.com: domain of bounces+228697-ee1c-igor.amplio=gmail.com@sendgrid.net designates 50.31.46.49 as permitted sender) smtp.mailfrom="bounces+228697-ee1c-igor.amplio=gmail.com@sendgrid.net";
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+Return-Path: <bounces+228697-ee1c-igor.amplio=gmail.com@sendgrid.net>
+Received: from o50314649.outbound-mail.sendgrid.net (o50314649.outbound-mail.sendgrid.net. [50.31.46.49])
+        by mx.google.com with ESMTPS id h13-20020ac8584d000000b0042f202eb7c0si643728qth.231.2024.03.08.16.11.55
+        for <igor.amplio@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 08 Mar 2024 16:11:57 -0800 (PST)
+Received-SPF: pass (google.com: domain of bounces+228697-ee1c-igor.amplio=gmail.com@sendgrid.net designates 50.31.46.49 as permitted sender) client-ip=50.31.46.49;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@sendgrid.net header.s=smtpapi header.b=ssCqcdrV;
+       spf=pass (google.com: domain of bounces+228697-ee1c-igor.amplio=gmail.com@sendgrid.net designates 50.31.46.49 as permitted sender) smtp.mailfrom="bounces+228697-ee1c-igor.amplio=gmail.com@sendgrid.net";
+       dmarc=fail (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sendgrid.net; h=mime-version:from:subject:content-type:reply-to:x-feedback-id:to:cc: content-type:from:subject:to; s=smtpapi; bh=J84tE4qgMo5zmaiCEzXga04hqgbqaBFyJMvZu1OrQpA=; b=ssCqcdrVdeSOIZDZLJObnHG+0d/Npr8bWVGnPkk/4c/5CSyMh5D1wR6SGPIGYIaT5xR7 19y77r89nibM0PKp/A2MPwIIaxPWvzKLGENSzOFIWE/ernArdkA1O5J2Q/ohfJdd+sGzdM uz3A0FXhp78sKBXDhtWab7xPtO/W/sBJ8=
+Received: by filterdrecv-6754bc9fc5-44c5f with SMTP id filterdrecv-6754bc9fc5-44c5f-1-65EBA949-5D
+        2024-03-09 00:11:54.172522035 +0000 UTC m=+350109.562943806
+Received: from CRMBuild2021 (unknown) by geopod-ismtpd-0 (SG) with ESMTP id eYvWN6raQsaqKE_EzOrH1Q for <igor.amplio@gmail.com>; Sat, 09 Mar 2024 00:11:53.291 +0000 (UTC)
+MIME-Version: 1.0
+From: "Ryan (Max) Shuput" <ActiveUtahHomes@gmail.com>
+Date: Sat, 09 Mar 2024 00:11:54 +0000 (UTC)
+Subject: Newsletter March 1- March 8, 2024
+Content-Type: multipart/mixed; boundary=--boundary_236757_1cc4aff4-b512-4783-b713-773a353c6b84
+Message-ID: <eYvWN6raQsaqKE_EzOrH1Q@geopod-ismtpd-0>
+Reply-To: "Ryan (Max) Shuput" <ActiveUtahHomes@gmail.com>
+X-Feedback-ID: 228697:SG
+X-SG-EID: u001.sr+Zi4HchtZiAIrGLItAkkwCKcebKNso98cj44ldaKIp7KVIZ8cEVolsTuEowXFEkF1kzmPRXd0twCrnp9csaeqxCHa0bSt0n7vic1HZBtA1YwABQIhZStT0oND87UBM3xNL7Pqy2xsw46H1W0yFGT8wLsRVjd0Yr6KIS9U5O1OcZNVCIr+3djmOub+HZDn6QqImP//Bwm/rAokVWF2/c/xZUvXAnGABHBbdjOxHowR0Wjerumapa3fZ6H/I32livwMfE6aBHbUhV3v3b/mwPQ==
+X-SG-ID: u001.SdBcvi+Evd/bQef8eZF3BtFF8WrmrqoZQVmS1jOdkIeFshR5ihK6PAGcEoHbl19gUIvRWfH7x6rZduwBedJeIpeDdAnlzxcjtogjU67AYYopOLHZtn1pJuz4PLUc1Go+ygjO+kp0jAv2NysVoGvPnQ==
+To: Igor Rendulic <igor.amplio@gmail.com>
+X-Entity-ID: u001.zdKrFmkH1XoEg57yFqbgbA==
+
+----boundary_236757_1cc4aff4-b512-4783-b713-773a353c6b84
+Content-Type: multipart/alternative; boundary=--boundary_236756_6aac1c75-9aff-466d-a967-a42745b7eb3f
+
+----boundary_236756_6aac1c75-9aff-466d-a967-a42745b7eb3f
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: base64
+
+DQoNClRoaXMgbWVzc2FnZSB3YXMgc2VudCB0byB5b3UgY291cnRlc3kgb2YgUnlhbiAoTWF4KSBT
+aHVwdXQgKFJlYWx0eSBPTkUgR3JvdXAgU2lnbmF0dXJlIDc2NTAgUyBVbmlvbiBQYXJrIEF2ZSwg
+TWlkdmFsZSBVVCA4NDA0NyksIFBvd2VyZWQgYnkgUmVmZXJyYWwgTWFrZXIuIEl0IGlzIGludGVu
+ZGVkIHRvIHByb21vdGUgcHJvZHVjdHMgb3Igc2VydmljZXMuIElmIHlvdSBubyBsb25nZXIgd2lz
+aCB0byByZWNlaXZlIHRoZXNlIGVtYWlscyB5b3UgbWF5IHVuc3Vic2NyaWJlIGhlcmU6IGh0dHA6
+Ly93d3cucmVmZXJyYWxtYWtlci5jb20vRW1haWxQcmVmZXJlbmNlLmFzcHg/VHlwZT1VJlVJRD0y
+YWRiNmU3OC0xNjFkLTQ3MzYtOWJhOC1lNTNlZTYxOTU5YmMmRW1haWw9aWdvci5hbXBsaW9AZ21h
+aWwuY29t
+----boundary_236756_6aac1c75-9aff-466d-a967-a42745b7eb3f
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+<p>Hello,</p><p>Here is the weekly newsletter. I have been helping a LOT of=
+ people to buy and/or sell their home with seller financing. It has unlocke=
+d doors for people concerned about high interest rates. If you feel trapped=
+ by a high interest rate, reach out to see if seller financing might solve =
+the problem.</p><p></p><p>Warmest Wishes, Ryan "Max" Shuput</p><br /><br />=
+<br><br><font size=3D"1">This message was sent to you courtesy of Ryan (Max=
+) Shuput (Realty ONE Group Signature 7650 S Union Park Ave, Midvale UT 8404=
+7), Powered by Referral Maker. It is intended to promote products or servic=
+es. If you no longer wish to receive these emails you may unsubscribe here:=
+ <a href=3D"http://www.referralmaker.com/EmailPreference.aspx?Type=3DU&UID=
+=3D2adb6e78-161d-4736-9ba8-e53ee61959bc&Email=3Digor.amplio@gmail.com" targ=
+et=3D"_blank">Unsubscribe</a></font><img src=3D"https://u228697.ct.sendgrid=
+.net/wf/open?upn=3Du001.58UgUB4rtSH3N6TBPpTE0ckb92DB-2BzbErWuyM-2Buw-2Fubat=
+SdaeDCdOEizhRFJdOj8doI0MymF6411jZmG73o7zdCOoUaEROP-2Fr-2Bstt4LblBYeia7xJkYh=
+TmRSUL9TjRWiZPoXazab5iyV2EfdV-2FNlorLHYHeIQWp6IgjRo3BEm-2FUzGBz5ap22YpJsOAJ=
+-2BOf-2FpfJj-2BtRYhxcJJQ-2Fa7hpNKFj0os-2FPbeMEeNHuNrhv-2FMpP1jUiw5w40g71OnF=
+GhqyHBVLuROsY6TJK8QJ2RC6OQ8obTkj7iiVbomc8SEa0ilMrN4jWyvBpxgVj9RqNob5SZy7k8p=
+V0jEbrJWs2mGmfe6g-3D-3D" alt=3D"" width=3D"1" height=3D"1" border=3D"0" sty=
+le=3D"height:1px !important;width:1px !important;border-width:0 !important;=
+margin-top:0 !important;margin-bottom:0 !important;margin-right:0 !importan=
+t;margin-left:0 !important;padding-top:0 !important;padding-bottom:0 !impor=
+tant;padding-right:0 !important;padding-left:0 !important;"/>
+----boundary_236756_6aac1c75-9aff-466d-a967-a42745b7eb3f--
+----boundary_236757_1cc4aff4-b512-4783-b713-773a353c6b84
+Content-Type: multipart/mixed; boundary=--boundary_236758_52cb5c3c-6f1a-4480-b44f-b526699a254b
+
+----boundary_236758_52cb5c3c-6f1a-4480-b44f-b526699a254b
+Content-Type: application/octet-stream; name="Active Utah Homes Newsletter-3.pdf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment
+
+
+----boundary_236758_52cb5c3c-6f1a-4480-b44f-b526699a254b--
+----boundary_236757_1cc4aff4-b512-4783-b713-773a353c6b84--
