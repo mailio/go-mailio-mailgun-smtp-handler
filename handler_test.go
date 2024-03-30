@@ -65,7 +65,7 @@ func TestMailgunSending(t *testing.T) {
 	}
 	fmt.Printf("Email: %s\n", buf.String())
 
-	id, err := h.SendMimeMail(buf.Bytes(), to...)
+	id, err := h.SendMimeMail(buf.Bytes(), to)
 	if err != nil {
 		t.Errorf("Error sending email: %v", err)
 	}

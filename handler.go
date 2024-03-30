@@ -28,7 +28,7 @@ func NewMailgunSmtpHandler(apiKey string, domain string) *MailgunSmtpHandler {
 }
 
 // send mail using mailgun
-func (m *MailgunSmtpHandler) SendMimeMail(raw []byte, to ...mail.Address) (string, error) {
+func (m *MailgunSmtpHandler) SendMimeMail(raw []byte, to []mail.Address) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
