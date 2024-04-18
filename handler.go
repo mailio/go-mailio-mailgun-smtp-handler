@@ -71,9 +71,17 @@ func toMailioVerdict(verdict string) string {
  */
 func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mail, error) {
 
-	err := request.ParseMultipartForm(32 << 20) // max 32 MB
-	if err != nil {
-		return nil, err
+	contentType := request.Header.Get("Content-Type")
+	if contentType == "application/x-www-form-urlencoded" {
+		err := request.ParseForm()
+		if err != nil {
+			return nil, err
+		}
+	} else if contentType == "multipart/form-data" {
+		err := request.ParseMultipartForm(32 << 20) // max 32 MB
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// PASS FAIL NOT_AVAILABLE
