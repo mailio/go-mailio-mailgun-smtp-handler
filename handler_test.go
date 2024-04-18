@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -35,10 +36,31 @@ func init() {
 	webHookSigningKey = os.Getenv("webhook_signing_key")
 }
 
+func TestMailgunSignature(t *testing.T) {
+	timestamp := "1713477754"
+	token := "4a280054b2dd2cd53e721e535339aae9be0ecc621970a4c904"
+	signature := "be1e42b5f7d86fb8ea6eb085759361951ba3cabc82559e766e1bee5547e8b85f"
+	h := hmac.New(sha256.New, []byte(webHookSigningKey))
+	io.WriteString(h, timestamp)
+	io.WriteString(h, token)
+
+	calculatedSignature := h.Sum(nil)
+	sig, err := hex.DecodeString(signature)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(calculatedSignature) != len(sig) {
+		t.Fatal(err)
+	}
+
+	isEqual := subtle.ConstantTimeCompare(sig, calculatedSignature) == 1
+	assert.True(t, isEqual)
+}
+
 func TestMailgunSending(t *testing.T) {
 	// Test sending email
 	// to := []string{"igor@mail.io"}
-	h := NewMailgunSmtpHandler(apiKey, domain)
+	h := NewMailgunSmtpHandler(apiKey, webHookSigningKey, domain)
 
 	outgoingMime := enmime.Builder().
 		From("Mg Tester", "test@mg.mailiomail.com").
@@ -113,7 +135,7 @@ func TestMailgunReceive(t *testing.T) {
 	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
 	multipartWriter.Close()
 
-	h := NewMailgunSmtpHandler(apiKey, domain)
+	h := NewMailgunSmtpHandler(apiKey, webHookSigningKey, domain)
 	em, err := h.ReceiveMail(*req)
 	if err != nil {
 		t.Fatalf("Error receiving email: %v", err)

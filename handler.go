@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/mail"
 	"strconv"
@@ -19,12 +20,13 @@ import (
 const MaxNumberOfRecipients = 20
 
 type MailgunSmtpHandler struct {
-	mg *mailgun.MailgunImpl
+	mg         *mailgun.MailgunImpl
+	webhookKey string
 }
 
-func NewMailgunSmtpHandler(apiKey string, domain string) *MailgunSmtpHandler {
+func NewMailgunSmtpHandler(apiKey, webhookKey string, domain string) *MailgunSmtpHandler {
 	mg := mailgun.NewMailgun(domain, apiKey)
-	return &MailgunSmtpHandler{mg: mg}
+	return &MailgunSmtpHandler{mg: mg, webhookKey: webhookKey}
 }
 
 // send mail using mailgun
@@ -70,6 +72,13 @@ func toMailioVerdict(verdict string) string {
 * Note: To receive raw MIME messages and perform your own parsing, you must configure a route with a URL ending with "mime". Example: http://myhost/post_mime
  */
 func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mail, error) {
+	body, err := io.ReadAll(request.Body)
+	if err != nil {
+		log.Printf("Error reading body: %v", err)
+		return nil, err
+	}
+
+	request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	contentType := request.Header.Get("Content-Type")
 	if contentType == "application/x-www-form-urlencoded" {
@@ -107,7 +116,7 @@ func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mai
 		TimeStamp: timestamp,
 	}
 
-	verified, vErr := m.mg.VerifyWebhookSignature(mailGunSignature)
+	verified, vErr := VerifyWebhookSignature(mailGunSignature, m.webhookKey)
 	if vErr != nil {
 		return nil, vErr
 	}
