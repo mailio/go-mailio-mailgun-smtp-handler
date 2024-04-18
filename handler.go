@@ -124,7 +124,7 @@ func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mai
 		return nil, fmt.Errorf("failed to veriify webhook signature")
 	}
 
-	mime := request.FormValue("Body-mime")
+	mime := request.FormValue("body-mime")
 
 	parsed, err := mailioutil.ParseMime([]byte(mime))
 	if err != nil {
