@@ -3,6 +3,7 @@ package mailgunsmtphandler
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -10,8 +11,10 @@ import (
 	"net/mail"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/mailgun/mailgun-go/v4"
 	mailioutil "github.com/mailio/go-mailio-server/email/smtp"
 	mailiotypes "github.com/mailio/go-mailio-server/email/smtp/types"
@@ -20,36 +23,100 @@ import (
 const MaxNumberOfRecipients = 20
 
 type MailgunSmtpHandler struct {
-	mg         *mailgun.MailgunImpl
-	webhookKey string
+	mg                *mailgun.MailgunImpl
+	baseURL           string
+	webhookApiKey     string
+	developmentApiKey string
+	client            *resty.Client
+	mutex             sync.Mutex
+	domainKeyMap      map[string]string
 }
 
-func NewMailgunSmtpHandler(apiKey, webhookKey string, domain string) *MailgunSmtpHandler {
-	mg := mailgun.NewMailgun(domain, apiKey)
-	return &MailgunSmtpHandler{mg: mg, webhookKey: webhookKey}
+// NewMailgunSmtpHandler creates a new Mailgun SMTP handler with the specified webhook signing key and optional base URL.
+// If the base URL is not provided, it defaults to "https://api.mailgun.net/v3".
+//
+// Parameters:
+//   - webhookSigningKey: The signing key used for validating webhook requests for incoming emails.
+//   - developmentApiKey: The API key used for sending emails from the development domain.
+//   - baseURL: A pointer to a string specifying the base URL for the Mailgun API. If nil, the default URL is used.
+//
+// Returns:
+//   - A new instance of MailgunSmtpHandler that implements the mailioutil.SmtpHandler interface.
+func NewMailgunSmtpHandler(webhookSigningKey string, developmentApiKey string, baseURL *string) *MailgunSmtpHandler {
+	base := "https://api.mailgun.net/v3"
+	if baseURL != nil {
+		base = *baseURL
+	}
+	client := resty.New()
+	mg := mailgun.NewMailgun("mailgun.net", "api-key")
+	return &MailgunSmtpHandler{
+		client:            client,
+		baseURL:           base,
+		mg:                mg,
+		webhookApiKey:     webhookSigningKey,
+		developmentApiKey: developmentApiKey,
+		domainKeyMap:      make(map[string]string)}
+}
+
+// associates the domain with the sending api key
+func (m *MailgunSmtpHandler) SetDomainAndSendApiKey(key string, domain string) error {
+	if key == "" || domain == "" {
+		return fmt.Errorf("key and domain cannot be empty")
+	}
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	m.domainKeyMap[domain] = key
+	return nil
 }
 
 // send mail using mailgun
-func (m *MailgunSmtpHandler) SendMimeMail(raw []byte, to []mail.Address) (string, error) {
+func (m *MailgunSmtpHandler) SendMimeMail(from mail.Address, raw []byte, to []mail.Address) (string, error) {
+	fromDomain := strings.Split(from.Address, "@")[1]
+	apiSendKey, ok := m.domainKeyMap[fromDomain]
+	if !ok {
+		return "", fmt.Errorf("no api key found for domain %s", fromDomain)
+	}
+	if len(to) > MaxNumberOfRecipients {
+		return "", fmt.Errorf("max number of recipients exceeded (20)")
+	}
+
+	toCommaSeparated := ""
+	for i, t := range to {
+		toCommaSeparated += t.String()
+		if i < len(to)-1 {
+			toCommaSeparated += ","
+		}
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	nr := bytes.NewReader(raw)
-	readCloser := io.NopCloser(nr)
-	defer readCloser.Close() // no-op closer
+	req, err := m.client.R().
+		SetFileReader("message", "message", bytes.NewReader(raw)).
+		SetFormData(map[string]string{
+			"to": toCommaSeparated,
+		}).SetHeader("Content-Type", "multipart/form-data").
+		SetBasicAuth("api", apiSendKey).SetContext(ctx).
+		Post(fmt.Sprintf("%s/%s/messages.mime", m.baseURL, fromDomain))
 
-	tos := []string{}
-	for _, t := range to {
-		tos = append(tos, t.String())
-	}
-
-	mailgunMsg := m.mg.NewMIMEMessage(readCloser, tos...)
-
-	_, id, err := m.mg.Send(ctx, mailgunMsg)
 	if err != nil {
-		return "", err
+		log.Default().Printf("Error creating request: %v", err)
+		return err.Error(), err
 	}
-	return id, nil
+	if req.IsError() {
+		log.Default().Printf("Error sending request: %v, code: %d", req.Error(), req.StatusCode())
+		return "", fmt.Errorf("error sending request: %v, code: %d", req.Error(), req.StatusCode())
+	}
+	var body map[string]interface{}
+	mErr := json.Unmarshal(req.Body(), &body)
+	if mErr != nil {
+		log.Default().Printf("Error unmarshalling response: %v", mErr)
+		return "", mErr
+	}
+	if _, ok := body["id"]; !ok {
+		return "", fmt.Errorf("no id found in response")
+	}
+
+	return body["id"].(string), nil
 }
 
 func toMailioVerdict(verdict string) string {
@@ -77,6 +144,8 @@ func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mai
 		log.Printf("Error reading body: %v", err)
 		return nil, err
 	}
+
+	log.Printf("%s", string(body))
 
 	request.Body = io.NopCloser(bytes.NewBuffer(body))
 
@@ -116,7 +185,7 @@ func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mai
 		TimeStamp: timestamp,
 	}
 
-	verified, vErr := VerifyWebhookSignature(mailGunSignature, m.webhookKey)
+	verified, vErr := VerifyWebhookSignature(mailGunSignature, m.webhookApiKey)
 	if vErr != nil {
 		return nil, vErr
 	}
@@ -140,4 +209,35 @@ func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mai
 		Status: spamMailio,
 	}
 	return parsed, nil
+}
+
+// list all supported domains
+func (m *MailgunSmtpHandler) ListDomains() ([]string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var domains Domains
+
+	resp, err := m.client.R().
+		SetBasicAuth("api", m.developmentApiKey).
+		SetResult(&domains).
+		SetQueryParam("limit", "500").
+		SetQueryParam("state", "active").
+		SetContext(ctx).Get("https://api.mailgun.net/v4/domains")
+
+	if err != nil {
+		log.Printf("Error getting domains: %v", err)
+		return nil, err
+	}
+	if resp.IsError() {
+		log.Printf("Error getting domains: %v", resp.Error())
+		return nil, fmt.Errorf("error getting domains: %v", resp.Error())
+	}
+
+	var domainNames []string
+	for _, d := range domains.Items {
+		domainNames = append(domainNames, d.Name)
+	}
+
+	return domainNames, nil
 }

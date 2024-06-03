@@ -22,7 +22,8 @@ import (
 
 var (
 	domain            string
-	apiKey            string
+	apiSendKey        string
+	apiDevKey         string
 	webHookSigningKey string
 )
 
@@ -32,7 +33,8 @@ func init() {
 		log.Fatalf("Error loading .env file, %v", err)
 	}
 	domain = os.Getenv("domain")
-	apiKey = os.Getenv("apikey")
+	apiSendKey = os.Getenv("api_send_key")
+	apiDevKey = os.Getenv("api_dev_key")
 	webHookSigningKey = os.Getenv("webhook_signing_key")
 }
 
@@ -60,10 +62,19 @@ func TestMailgunSignature(t *testing.T) {
 func TestMailgunSending(t *testing.T) {
 	// Test sending email
 	// to := []string{"igor@mail.io"}
-	h := NewMailgunSmtpHandler(apiKey, webHookSigningKey, domain)
+	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, nil)
+	err := h.SetDomainAndSendApiKey(apiSendKey, domain)
+	if err != nil {
+		t.Fatalf("Error setting domain and send api key: %v", err)
+	}
+
+	from := mail.Address{
+		Name:    "Mg Tester",
+		Address: "test@mailiomail.com",
+	}
 
 	outgoingMime := enmime.Builder().
-		From("Mg Tester", "test@mg.mailiomail.com").
+		From(from.Name, from.Address).
 		Subject("Testing it").
 		Text([]byte("Text body")).
 		HTML([]byte("<p>HTML body</p>"))
@@ -87,7 +98,7 @@ func TestMailgunSending(t *testing.T) {
 	}
 	fmt.Printf("Email: %s\n", buf.String())
 
-	id, err := h.SendMimeMail(buf.Bytes(), to)
+	id, err := h.SendMimeMail(from, buf.Bytes(), to)
 	if err != nil {
 		t.Errorf("Error sending email: %v", err)
 	}
@@ -114,10 +125,10 @@ func TestMailgunReceive(t *testing.T) {
 	multipartWriter.WriteField("recipient", "igor.amplio@gmail.com")
 	multipartWriter.WriteField("sender", "sender@test.com")
 	multipartWriter.WriteField("subject", "Test subject")
-	multipartWriter.WriteField("Body-mime", string(content))
+	multipartWriter.WriteField("body-mime", string(content))
 	multipartWriter.WriteField("timestamp", "1234567")
 	multipartWriter.WriteField("token", "token")
-	hm := hmac.New(sha256.New, []byte(apiKey))
+	hm := hmac.New(sha256.New, []byte(webHookSigningKey))
 	io.WriteString(hm, timestamp)
 	io.WriteString(hm, token)
 
@@ -135,7 +146,8 @@ func TestMailgunReceive(t *testing.T) {
 	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
 	multipartWriter.Close()
 
-	h := NewMailgunSmtpHandler(apiKey, webHookSigningKey, domain)
+	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, nil)
+	h.SetDomainAndSendApiKey(apiSendKey, domain)
 	em, err := h.ReceiveMail(*req)
 	if err != nil {
 		t.Fatalf("Error receiving email: %v", err)
@@ -146,4 +158,14 @@ func TestMailgunReceive(t *testing.T) {
 	assert.Equal(t, "listings_support@redfin.com", em.ReplyTo[0].Address)
 	assert.Equal(t, "igor.amplio@gmail.com", em.To[0].Address)
 	assert.Equal(t, "listings@redfin.com", em.From.Address)
+}
+
+func TestMailgunListDomains(t *testing.T) {
+	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, nil)
+	h.SetDomainAndSendApiKey(apiDevKey, domain)
+	domains, err := h.ListDomains()
+	if err != nil {
+		t.Fatalf("Error listing domains: %v", err)
+	}
+	assert.Greater(t, len(domains), 0)
 }

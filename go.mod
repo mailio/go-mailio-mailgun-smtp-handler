@@ -3,10 +3,11 @@ module github.com/mailio/go-mailio-mailgun-smtp-handler
 go 1.22.1
 
 require (
+	github.com/go-resty/resty/v2 v2.13.1
 	github.com/jhillyerd/enmime v1.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mailgun/mailgun-go/v4 v4.12.0
-	github.com/mailio/go-mailio-server/email/smtp v0.0.0-20240330212702-c45570c980ce
+	github.com/mailio/go-mailio-server/email/smtp v0.0.0-20240603165008-20cf4f3124b2
 	github.com/stretchr/testify v1.9.0
 )
 
@@ -28,7 +29,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
