@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/mail"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/jhillyerd/enmime"
@@ -21,10 +22,12 @@ import (
 )
 
 var (
-	domain            string
-	apiSendKey        string
 	apiDevKey         string
 	webHookSigningKey string
+	smtpHost          string
+	smtpUsername      string
+	smtpPassword      string
+	smtpPort          int
 )
 
 func init() {
@@ -32,16 +35,22 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error loading .env file, %v", err)
 	}
-	domain = os.Getenv("domain")
-	apiSendKey = os.Getenv("api_send_key")
 	apiDevKey = os.Getenv("api_dev_key")
 	webHookSigningKey = os.Getenv("webhook_signing_key")
+	smtpHost = os.Getenv("smtp_server")
+	smtpUsername = os.Getenv("smtp_username")
+	smtpPassword = os.Getenv("smtp_password")
+	smtpPort, _ = strconv.Atoi(os.Getenv("smtp_port"))
+
 }
 
 func TestMailgunSignature(t *testing.T) {
-	timestamp := "1713477754"
-	token := "4a280054b2dd2cd53e721e535339aae9be0ecc621970a4c904"
-	signature := "be1e42b5f7d86fb8ea6eb085759361951ba3cabc82559e766e1bee5547e8b85f"
+	// timestamp := "1713477754"
+	// token := "4a280054b2dd2cd53e721e535339aae9be0ecc621970a4c904"
+	// signature := "be1e42b5f7d86fb8ea6eb085759361951ba3cabc82559e766e1bee5547e8b85f"
+	timestamp := "1717451874"
+	token := "84f9394dc35fe0ea72ccc8a68e22d62becca294c26fc550fdf"
+	signature := "c520c04aa841120e58d56f9fa78e3c97618512e8c1622507f75b9d0257d7bc61"
 	h := hmac.New(sha256.New, []byte(webHookSigningKey))
 	io.WriteString(h, timestamp)
 	io.WriteString(h, token)
@@ -61,11 +70,9 @@ func TestMailgunSignature(t *testing.T) {
 
 func TestMailgunSending(t *testing.T) {
 	// Test sending email
-	// to := []string{"igor@mail.io"}
-	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, nil)
-	err := h.SetDomainAndSendApiKey(apiSendKey, domain)
-	if err != nil {
-		t.Fatalf("Error setting domain and send api key: %v", err)
+	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, smtpHost, smtpPort, smtpUsername, smtpPassword)
+	if h == nil {
+		t.Fatalf("Error creating a new handler")
 	}
 
 	from := mail.Address{
@@ -81,11 +88,26 @@ func TestMailgunSending(t *testing.T) {
 
 	to := []mail.Address{
 		{
-			Name:    "Igor",
-			Address: "igor@mail.io",
+			Name:    "Igor Rendulic",
+			Address: "rendulic.igor@mailiomail.com",
+		},
+	}
+	bcc := []mail.Address{
+		{
+			Name:    "Igor Rendulic",
+			Address: "igor.abc@mailiomail.com",
+		},
+	}
+	cc := []mail.Address{
+		{
+			Name:    "Igor Rendulic",
+			Address: "igor@mmmm.io",
 		},
 	}
 	outgoingMime = outgoingMime.ToAddrs(to)
+	outgoingMime = outgoingMime.CCAddrs(cc)
+	// don't add bcc recipients into mime, add them to To field
+	// outgoingMime = outgoingMime.BCCAddrs(bcc)
 
 	ep, err := outgoingMime.Build()
 	if err != nil {
@@ -98,6 +120,12 @@ func TestMailgunSending(t *testing.T) {
 	}
 	fmt.Printf("Email: %s\n", buf.String())
 
+	if len(cc) > 0 {
+		to = append(to, cc...)
+	}
+	if len(bcc) > 0 {
+		to = append(to, bcc...)
+	}
 	id, err := h.SendMimeMail(from, buf.Bytes(), to)
 	if err != nil {
 		t.Errorf("Error sending email: %v", err)
@@ -146,8 +174,7 @@ func TestMailgunReceive(t *testing.T) {
 	req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
 	multipartWriter.Close()
 
-	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, nil)
-	h.SetDomainAndSendApiKey(apiSendKey, domain)
+	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, smtpHost, smtpPort, smtpUsername, smtpPassword)
 	em, err := h.ReceiveMail(*req)
 	if err != nil {
 		t.Fatalf("Error receiving email: %v", err)
@@ -161,8 +188,7 @@ func TestMailgunReceive(t *testing.T) {
 }
 
 func TestMailgunListDomains(t *testing.T) {
-	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, nil)
-	h.SetDomainAndSendApiKey(apiDevKey, domain)
+	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, smtpHost, smtpPort, smtpUsername, smtpPassword)
 	domains, err := h.ListDomains()
 	if err != nil {
 		t.Fatalf("Error listing domains: %v", err)
