@@ -16,7 +16,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/jhillyerd/enmime"
+	"github.com/jhillyerd/enmime/v2"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
