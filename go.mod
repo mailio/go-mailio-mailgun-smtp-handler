@@ -1,13 +1,13 @@
 module github.com/mailio/go-mailio-mailgun-smtp-handler
 
-go 1.22.1
+go 1.23.2
 
 require (
 	github.com/go-resty/resty/v2 v2.13.1
 	github.com/jhillyerd/enmime v1.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mailgun/mailgun-go/v4 v4.12.0
-	github.com/mailio/go-mailio-server/email/smtp v0.0.0-20240603165008-20cf4f3124b2
+	github.com/mailio/go-mailio-server/email/smtp v0.0.0-20251015165841-c6307467f1c5
 	github.com/stretchr/testify v1.9.0
 )
 

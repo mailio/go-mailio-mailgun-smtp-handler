@@ -33,8 +33,8 @@ github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnr
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/mailgun/mailgun-go/v4 v4.12.0 h1:TtuQCgqSp4cB6swPxP5VF/u4JeeBIAjTdpuQ+4Usd/w=
 github.com/mailgun/mailgun-go/v4 v4.12.0/go.mod h1:L9s941Lgk7iB3TgywTPz074pK2Ekkg4kgbnAaAyJ2z8=
-github.com/mailio/go-mailio-server/email/smtp v0.0.0-20240603165008-20cf4f3124b2 h1:h7lJZJurW6veyVZWnRP3AX6ZYHVqN5Ku/j83mDMKWdI=
-github.com/mailio/go-mailio-server/email/smtp v0.0.0-20240603165008-20cf4f3124b2/go.mod h1:cseAAWNn3XRxay0cAUJ5kGh27Rq8dj3Vi0+i9PchqP0=
+github.com/mailio/go-mailio-server/email/smtp v0.0.0-20251015165841-c6307467f1c5 h1:o1n0bBFI/umzcqZz5W0Eyp18rrQRdEVgQ69rq3BVY1s=
+github.com/mailio/go-mailio-server/email/smtp v0.0.0-20251015165841-c6307467f1c5/go.mod h1:K3zPCPfuhUtaahMVAvFq/g4Wev30mv520MZ/ps94SoE=
 github.com/mattn/go-runewidth v0.0.9/go.mod h1:H031xJmbD/WCDINGzjvQ9THkh0rPKHF+m2gUSrubnMI=
 github.com/mattn/go-runewidth v0.0.15 h1:UNAjwbU9l54TA3KzvqLGxwWjHmMgBUVhBiTjelZgg3U=
 github.com/mattn/go-runewidth v0.0.15/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
