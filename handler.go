@@ -153,6 +153,7 @@ func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mai
 	parsed.SpamVerdict = &mailiotypes.VerdictStatus{
 		Status: spamMailio,
 	}
+	parsed.RawMime = []byte(mime)
 	return parsed, nil
 }
 
