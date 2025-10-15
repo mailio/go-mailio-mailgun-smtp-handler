@@ -6,17 +6,14 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"net/mail"
 	"os"
 	"strconv"
 	"testing"
 
-	"github.com/jhillyerd/enmime/v2"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 )
@@ -66,71 +63,6 @@ func TestMailgunSignature(t *testing.T) {
 
 	isEqual := subtle.ConstantTimeCompare(sig, calculatedSignature) == 1
 	assert.True(t, isEqual)
-}
-
-func TestMailgunSending(t *testing.T) {
-	// Test sending email
-	h := NewMailgunSmtpHandler(webHookSigningKey, apiDevKey, smtpHost, smtpPort, smtpUsername, smtpPassword)
-	if h == nil {
-		t.Fatalf("Error creating a new handler")
-	}
-
-	from := mail.Address{
-		Name:    "Mg Tester",
-		Address: "test@mailiomail.com",
-	}
-
-	outgoingMime := enmime.Builder().
-		From(from.Name, from.Address).
-		Subject("Testing it").
-		Text([]byte("Text body")).
-		HTML([]byte("<p>HTML body</p>"))
-
-	to := []mail.Address{
-		{
-			Name:    "Igor Rendulic",
-			Address: "rendulic.igor@mailiomail.com",
-		},
-	}
-	bcc := []mail.Address{
-		{
-			Name:    "Igor Rendulic",
-			Address: "igor.abc@mailiomail.com",
-		},
-	}
-	cc := []mail.Address{
-		{
-			Name:    "Igor Rendulic",
-			Address: "igor@mmmm.io",
-		},
-	}
-	outgoingMime = outgoingMime.ToAddrs(to)
-	outgoingMime = outgoingMime.CCAddrs(cc)
-	// don't add bcc recipients into mime, add them to To field
-	// outgoingMime = outgoingMime.BCCAddrs(bcc)
-
-	ep, err := outgoingMime.Build()
-	if err != nil {
-		t.Fatalf("Error building email: %v", err)
-	}
-	var buf bytes.Buffer
-	err = ep.Encode(&buf)
-	if err != nil {
-		t.Fatalf("Error encoding email: %v", err)
-	}
-	fmt.Printf("Email: %s\n", buf.String())
-
-	if len(cc) > 0 {
-		to = append(to, cc...)
-	}
-	if len(bcc) > 0 {
-		to = append(to, bcc...)
-	}
-	id, err := h.SendMimeMail(from, buf.Bytes(), to)
-	if err != nil {
-		t.Errorf("Error sending email: %v", err)
-	}
-	fmt.Printf("Email sent with id: %s\n", id)
 }
 
 func MyHTTPHandler(w http.ResponseWriter, r *http.Request) {

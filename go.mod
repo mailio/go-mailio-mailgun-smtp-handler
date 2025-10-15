@@ -1,13 +1,13 @@
 module github.com/mailio/go-mailio-mailgun-smtp-handler
 
-go 1.25
+go 1.25.2
 
 require (
 	github.com/go-resty/resty/v2 v2.13.1
-	github.com/jhillyerd/enmime/v2 v2.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mailgun/mailgun-go/v4 v4.12.0
-	github.com/mailio/go-mailio-server/email/smtp v0.0.0-20251015165841-c6307467f1c5
+	github.com/mailio/go-mailio-smtp-abi v1.0.1
+	github.com/mailio/go-mailio-smtp-helpers v1.0.0
 	github.com/stretchr/testify v1.10.0
 )
 
@@ -21,13 +21,12 @@ require (
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/inbucket/html2text v0.9.0 // indirect
-	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056 // indirect
-	github.com/jhillyerd/enmime v1.2.0 // indirect
+	github.com/jhillyerd/enmime/v2 v2.2.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
-	github.com/microcosm-cc/bluemonday v1.0.26 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect

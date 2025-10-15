@@ -3,7 +3,7 @@ package mailgunsmtphandler
 import (
 	"strings"
 
-	mailioutil "github.com/mailio/go-mailio-server/email/smtp"
+	helpers "github.com/mailio/go-mailio-smtp-helpers"
 )
 
 func toMailioVerdict(verdict string) string {
@@ -23,7 +23,7 @@ func toMailioVerdict(verdict string) string {
 }
 
 func parseMessageIdFromMime(mime []byte) (string, error) {
-	parsed, err := mailioutil.ParseMime(mime)
+	parsed, err := helpers.ParseMime(mime)
 	if err != nil {
 		return "", err
 	}

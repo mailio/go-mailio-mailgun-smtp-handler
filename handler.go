@@ -15,8 +15,8 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/mailgun/mailgun-go/v4"
-	mailioutil "github.com/mailio/go-mailio-server/email/smtp"
-	mailiotypes "github.com/mailio/go-mailio-server/email/smtp/types"
+	abi "github.com/mailio/go-mailio-smtp-abi"
+	helpers "github.com/mailio/go-mailio-smtp-helpers"
 )
 
 const MaxNumberOfRecipients = 20
@@ -83,7 +83,7 @@ func (m *MailgunSmtpHandler) SendMimeMail(from mail.Address, mime []byte, to []m
 /*
 * Note: To receive raw MIME messages and perform your own parsing, you must configure a route with a URL ending with "mime". Example: http://myhost/post_mime
  */
-func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mail, error) {
+func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*abi.Mail, error) {
 	body, err := io.ReadAll(request.Body)
 	if err != nil {
 		log.Printf("Error reading body: %v", err)
@@ -140,17 +140,17 @@ func (m *MailgunSmtpHandler) ReceiveMail(request http.Request) (*mailiotypes.Mai
 
 	mime := request.FormValue("body-mime")
 
-	parsed, err := mailioutil.ParseMime([]byte(mime))
+	parsed, err := helpers.ParseMime([]byte(mime))
 	if err != nil {
 		return nil, err
 	}
-	parsed.DkimVerdict = &mailiotypes.VerdictStatus{
+	parsed.DkimVerdict = &abi.VerdictStatus{
 		Status: toMailioVerdict(dkim),
 	}
-	parsed.SpfVerdict = &mailiotypes.VerdictStatus{
+	parsed.SpfVerdict = &abi.VerdictStatus{
 		Status: toMailioVerdict(spf),
 	}
-	parsed.SpamVerdict = &mailiotypes.VerdictStatus{
+	parsed.SpamVerdict = &abi.VerdictStatus{
 		Status: spamMailio,
 	}
 	parsed.RawMime = []byte(mime)
